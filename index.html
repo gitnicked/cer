@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Album Release</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000; /* Black background */
+            color: #000; /* Default text color to black */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            position: relative; /* Needed for particle container positioning */
+            min-height: 100vh;
+        }
+
+        /* Keyframes for the pink pulse animation */
+        @keyframes pinkPulse {
+            0%, 100% {
+                color: #000; /* Start and end black */
+                text-shadow: none;
+            }
+            50% {
+                color: #FFA6C9; /* Light pink color */
+                text-shadow: 0 0 8px #FFA6C9, 0 0 12px #FFA6C9; /* Pink glow */
+            }
+        }
+
+        /* Apply animation to tracklist items */
+        .track-item {
+            animation-name: pinkPulse;
+            animation-duration: 3s; /* Duration of one pulse */
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite; /* Loop forever */
+            /* Delay is set inline based on item index */
+        }
+
+        /* Ensure image scales nicely */
+        .album-cover img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            /* Removed border-radius */
+            box-shadow: 0 0 20px 5px rgba(255, 166, 201, 0.3); /* Subtle pink glow around cover */
+        }
+
+        /* Container adjustments */
+        .content-wrapper {
+            min-height: 100vh; /* Ensure it takes full viewport height */
+            padding: 1rem; /* Add padding for spacing */
+            position: relative; /* Position relative to stack above particles */
+            z-index: 1; /* Ensure content is above particles */
+        }
+
+        /* Tracklist styling */
+        .tracklist {
+             list-style: none;
+             padding: 0;
+             margin: 0 1rem; /* Add margin between tracklist and image */
+        }
+        .tracklist li {
+            margin-bottom: 0.75rem; /* Space between tracks */
+            font-size: 0.875rem; /* Slightly smaller font */
+            line-height: 1.25rem;
+        }
+
+         /* Mobile specific adjustments */
+         @media (max-width: 768px) {
+             .tracklist {
+                 text-align: center; /* Center text on mobile */
+                 margin: 1rem 0; /* Adjust margin for vertical stacking */
+             }
+              .album-cover {
+                 max-width: 80%; /* Reduce cover size slightly on mobile */
+                 margin-left: auto;
+                 margin-right: auto;
+             }
+         }
+
+        /* --- Background Particles --- */
+        .particle-container {
+            position: fixed; /* Cover the whole viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Position behind content-wrapper */
+            pointer-events: none; /* Allow clicks to pass through */
+            overflow: hidden; /* Hide particles that go off-screen */
+        }
+
+        .particle {
+            position: absolute;
+            background-color: rgba(255, 166, 201, 0.4); /* Semi-transparent pink */
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+            opacity: 0; /* Start invisible */
+            bottom: 0; /* Start from bottom */
+        }
+
+        /* Keyframes for floating up and slightly drifting */
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10%, 90% { /* Fade in and out */
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(var(--drift, 0px)); /* Float up, use drift variable */
+                opacity: 0;
+            }
+        }
+
+        /* Create multiple particles with variations using nth-child */
+        /* Adjust number, size, position, duration, delay, drift as needed */
+        .particle:nth-child(1) { width: 5px; height: 5px; left: 10%; animation-duration: 15s; animation-delay: 0s; --drift: 20px; }
+        .particle:nth-child(2) { width: 8px; height: 8px; left: 20%; animation-duration: 20s; animation-delay: 3s; --drift: -30px; }
+        .particle:nth-child(3) { width: 4px; height: 4px; left: 30%; animation-duration: 25s; animation-delay: 1s; --drift: 15px; }
+        .particle:nth-child(4) { width: 6px; height: 6px; left: 40%; animation-duration: 18s; animation-delay: 5s; --drift: -10px; }
+        .particle:nth-child(5) { width: 5px; height: 5px; left: 50%; animation-duration: 22s; animation-delay: 2s; --drift: 25px; }
+        .particle:nth-child(6) { width: 7px; height: 7px; left: 60%; animation-duration: 16s; animation-delay: 6s; --drift: -20px; }
+        .particle:nth-child(7) { width: 4px; height: 4px; left: 70%; animation-duration: 24s; animation-delay: 4s; --drift: 10px; }
+        .particle:nth-child(8) { width: 9px; height: 9px; left: 80%; animation-duration: 19s; animation-delay: 7s; --drift: -25px; }
+        .particle:nth-child(9) { width: 5px; height: 5px; left: 90%; animation-duration: 21s; animation-delay: 1s; --drift: 30px; }
+        .particle:nth-child(10) { width: 6px; height: 6px; left: 5%; animation-duration: 17s; animation-delay: 8s; --drift: -15px; }
+        .particle:nth-child(11) { width: 4px; height: 4px; left: 15%; animation-duration: 23s; animation-delay: 9s; --drift: 20px; }
+        .particle:nth-child(12) { width: 7px; height: 7px; left: 25%; animation-duration: 20s; animation-delay: 10s; --drift: -10px; }
+        .particle:nth-child(13) { width: 5px; height: 5px; left: 35%; animation-duration: 18s; animation-delay: 11s; --drift: 15px; }
+        .particle:nth-child(14) { width: 8px; height: 8px; left: 45%; animation-duration: 22s; animation-delay: 12s; --drift: -25px; }
+        .particle:nth-child(15) { width: 6px; height: 6px; left: 55%; animation-duration: 16s; animation-delay: 13s; --drift: 20px; }
+
+    </style>
+</head>
+<body class="bg-black">
+
+    <div class="particle-container">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="content-wrapper flex flex-col md:flex-row items-center justify-center min-h-screen p-4 md:p-8">
+
+        <div class="tracklist text-right md:text-right order-2 md:order-1 w-full md:w-auto mb-6 md:mb-0 md:mr-8">
+            <h2 class="text-lg font-bold mb-4" style="color: #FFA6C9;">Side A</h2>
+            <ul>
+                <li class="track-item" style="animation-delay: 0.0s;">Intro</li>
+                <li class="track-item" style="animation-delay: 0.3s;">BOMB</li>
+                <li class="track-item" style="animation-delay: 0.6s;">sel.control</li>
+                <li class="track-item" style="animation-delay: 0.9s;">PRADADISE</li>
+                <li class="track-item" style="animation-delay: 1.2s;">STAREATME</li>
+                <li class="track-item" style="animation-delay: 1.5s;">TITAN.LEVEL</li>
+                <li class="track-item" style="animation-delay: 1.8s;">ON GOD LEVEL</li> </ul>
+        </div>
+
+        <div class="album-cover order-1 md:order-2 w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 flex-shrink-0">
+            <img src="image.png"
+                 alt="Album Cover"
+                 class="w-full h-full object-cover shadow-lg"
+                 onerror="this.onerror=null; this.src='https://placehold.co/400x400/cccccc/000000?text=Image+Not+Found';">
+                 </div>
+
+        <div class="tracklist text-left md:text-left order-3 md:order-3 w-full md:w-auto mt-6 md:mt-0 md:ml-8">
+            <h2 class="text-lg font-bold mb-4" style="color: #FFA6C9;">Side B</h2>
+            <ul>
+                <li class="track-item" style="animation-delay: 0.0s;">BRAIDS</li>
+                <li class="track-item" style="animation-delay: 0.3s;">Tyler</li>
+                <li class="track-item" style="animation-delay: 0.6s;">letmestarve</li>
+                <li class="track-item" style="animation-delay: 0.9s;">GOD</li>
+                <li class="track-item" style="animation-delay: 1.2s;">JAPANESE</li>
+                <li class="track-item" style="animation-delay: 1.5s;">FATHER</li>
+            </ul>
+        </div>
+
+    </div>
+
+</body>
+</html>
