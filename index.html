@@ -30,6 +30,11 @@
                 text-shadow: 0 0 8px #FFA6C9, 0 0 12px #FFA6C9; /* Pink glow */
             }
         }
+        /* Keyframes for subtle text pulse on loading screen */
+        @keyframes subtlePulse {
+             0%, 100% { opacity: 0.7; }
+             50% { opacity: 1; }
+        }
 
         /* Apply animation to tracklist items */
         .track-item {
@@ -45,7 +50,6 @@
             display: block;
             max-width: 100%;
             height: auto;
-            /* Removed border-radius */
             box-shadow: 0 0 20px 5px rgba(255, 166, 201, 0.3); /* Subtle pink glow around cover */
         }
 
@@ -87,6 +91,10 @@
                 font-size: 0.75rem; /* Smaller text on mobile */
                 padding: 0.3rem 0.6rem;
              }
+             /* Adjust loading text size on mobile */
+             #loading-screen h1 {
+                font-size: 1.5rem; /* Slightly smaller text */
+             }
          }
 
         /* --- Background Particles --- */
@@ -125,8 +133,7 @@
             }
         }
 
-        /* Create multiple particles with variations using nth-child */
-        /* Adjust number, size, position, duration, delay, drift as needed */
+        /* Particle variations */
         .particle:nth-child(1) { width: 5px; height: 5px; left: 10%; animation-duration: 15s; animation-delay: 0s; --drift: 20px; }
         .particle:nth-child(2) { width: 8px; height: 8px; left: 20%; animation-duration: 20s; animation-delay: 3s; --drift: -30px; }
         .particle:nth-child(3) { width: 4px; height: 4px; left: 30%; animation-duration: 25s; animation-delay: 1s; --drift: 15px; }
@@ -147,88 +154,113 @@
 </head>
 <body class="bg-black">
 
-    <div class="particle-container">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
+    <div id="loading-screen" class="fixed inset-0 bg-black flex items-center justify-center z-[100] cursor-pointer transition-opacity duration-1000 ease-out">
+        <h1 class="text-pink-300 text-2xl font-semibold" style="animation: subtlePulse 2s ease-in-out infinite;">Click to Enter</h1>
     </div>
 
-    <div class="currently-playing fixed top-4 right-4 bg-pink-300 text-black text-xs font-semibold p-2 rounded-lg shadow-lg flex items-center z-50">
-        <span class="mr-2">🎵</span> <span>CURRENTLY PLAYING - BRAIDS</span>
-    </div>
+    <div id="main-content" class="opacity-0" style="transition: opacity 5s ease-in-out;">
 
-    <div class="content-wrapper flex flex-col md:flex-row items-center justify-center min-h-screen p-4 md:p-8">
-
-        <div class="tracklist text-right md:text-right order-2 md:order-1 w-full md:w-auto mb-6 md:mb-0 md:mr-8">
-            <h2 class="text-lg font-bold mb-4" style="color: #FFA6C9;">Side A</h2>
-            <ul>
-                <li class="track-item" style="animation-delay: 0.0s;">Intro</li>
-                <li class="track-item" style="animation-delay: 0.3s;">BOMB</li>
-                <li class="track-item" style="animation-delay: 0.6s;">sel.control</li>
-                <li class="track-item" style="animation-delay: 0.9s;">PRADADISE</li>
-                <li class="track-item" style="animation-delay: 1.2s;">STAREATME</li>
-                <li class="track-item" style="animation-delay: 1.5s;">TITAN.LEVEL</li>
-                <li class="track-item" style="animation-delay: 1.8s;">ON GOD LEVEL</li>
-             </ul>
+        <div class="particle-container">
+            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
         </div>
 
-        <div class="album-cover order-1 md:order-2 w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 flex-shrink-0">
-            <img src="image.png"
-                 alt="Album Cover"
-                 class="w-full h-full object-cover shadow-lg"
-                 onerror="this.onerror=null; this.src='https://placehold.co/400x400/cccccc/000000?text=Image+Not+Found';">
+        <div class="currently-playing fixed top-4 right-4 bg-pink-300 text-black text-xs font-semibold p-2 rounded-lg shadow-lg flex items-center z-50">
+            <span class="mr-2">🎵</span> <span>CURRENTLY PLAYING - BRAIDS</span>
         </div>
 
-        <div class="tracklist text-left md:text-left order-3 md:order-3 w-full md:w-auto mt-6 md:mt-0 md:ml-8">
-            <h2 class="text-lg font-bold mb-4" style="color: #FFA6C9;">Side B</h2>
-            <ul>
-                <li class="track-item" style="animation-delay: 0.0s;">BRAIDS</li>
-                <li class="track-item" style="animation-delay: 0.3s;">Tyler</li>
-                <li class="track-item" style="animation-delay: 0.6s;">letmestarve</li>
-                <li class="track-item" style="animation-delay: 0.9s;">GOD</li>
-                <li class="track-item" style="animation-delay: 1.2s;">JAPANESE</li>
-                <li class="track-item" style="animation-delay: 1.5s;">FATHER</li>
-            </ul>
+        <div class="content-wrapper flex flex-col md:flex-row items-center justify-center min-h-screen p-4 md:p-8">
+
+            <div class="tracklist text-right md:text-right order-2 md:order-1 w-full md:w-auto mb-6 md:mb-0 md:mr-8">
+                <h2 class="text-lg font-bold mb-4" style="color: #FFA6C9;">Side A</h2>
+                <ul>
+                    <li class="track-item" style="animation-delay: 0.0s;">Intro</li>
+                    <li class="track-item" style="animation-delay: 0.3s;">BOMB</li>
+                    <li class="track-item" style="animation-delay: 0.6s;">sel.control</li>
+                    <li class="track-item" style="animation-delay: 0.9s;">PRADADISE</li>
+                    <li class="track-item" style="animation-delay: 1.2s;">STAREATME</li>
+                    <li class="track-item" style="animation-delay: 1.5s;">TITAN.LEVEL</li>
+                    <li class="track-item" style="animation-delay: 1.8s;">ON GOD LEVEL</li>
+                 </ul>
+            </div>
+
+            <div class="album-cover order-1 md:order-2 w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 flex-shrink-0">
+                <img src="image.png"
+                     alt="Album Cover"
+                     class="w-full h-full object-cover shadow-lg"
+                     onerror="this.onerror=null; this.src='https://placehold.co/400x400/cccccc/000000?text=Image+Not+Found';">
+            </div>
+
+            <div class="tracklist text-left md:text-left order-3 md:order-3 w-full md:w-auto mt-6 md:mt-0 md:ml-8">
+                <h2 class="text-lg font-bold mb-4" style="color: #FFA6C9;">Side B</h2>
+                <ul>
+                    <li class="track-item" style="animation-delay: 0.0s;">BRAIDS</li>
+                    <li class="track-item" style="animation-delay: 0.3s;">Tyler</li>
+                    <li class="track-item" style="animation-delay: 0.6s;">letmestarve</li>
+                    <li class="track-item" style="animation-delay: 0.9s;">GOD</li>
+                    <li class="track-item" style="animation-delay: 1.2s;">JAPANESE</li>
+                    <li class="track-item" style="animation-delay: 1.5s;">FATHER</li>
+                </ul>
+            </div>
         </div>
-
-    </div>
-
-    <audio id="audioPlayer" src="briads master.mp3" autoplay loop> Your browser does not support the audio element.
+    </div> <audio id="audioPlayer" src="briads master.mp3" loop>
+        Your browser does not support the audio element.
     </audio>
 
     <script>
-        // Attempt to play audio on load, handling potential browser restrictions
-        window.addEventListener('load', () => {
-            const audio = document.getElementById('audioPlayer');
-            if (audio) {
-                // Try to play the audio
-                const playPromise = audio.play();
+        // Get references to the elements
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainContent = document.getElementById('main-content');
+        const audio = document.getElementById('audioPlayer');
+        let hasInteracted = false; // Flag to prevent multiple clicks
 
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        // Autoplay started!
-                        console.log("Audio playback started automatically.");
-                    }).catch(error => {
-                        // Autoplay was prevented.
-                        console.error("Audio autoplay failed:", error);
-                        // Optionally, show a play button or message to the user
-                        // For example: document.getElementById('playButton').style.display = 'block';
-                    });
-                }
+        // Add click listener to the loading screen
+        loadingScreen.addEventListener('click', () => {
+            // Prevent running the logic multiple times if clicked again quickly
+            if (hasInteracted) {
+                return;
+            }
+            hasInteracted = true;
+
+            console.log("Loading screen clicked. Attempting to play audio...");
+
+            // Try to play the audio
+            const playPromise = audio.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Audio playback started successfully
+                    console.log("Audio playback started.");
+
+                    // 1. Fade out loading screen
+                    loadingScreen.classList.add('opacity-0');
+
+                    // 2. After loading screen fades out (1s), remove it and fade in main content
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none'; // Hide it completely
+                        console.log("Loading screen hidden. Fading in main content...");
+                        // Add opacity-100 to start the 5s fade-in defined in CSS
+                        mainContent.classList.add('opacity-100');
+                    }, 1000); // Match the duration of the loading screen fade-out (1000ms)
+
+                }).catch(error => {
+                    // Audio playback failed
+                    console.error("Audio playback failed:", error);
+                    // Optionally display an error message on the loading screen
+                    loadingScreen.querySelector('h1').textContent = 'Error playing audio. Please refresh.';
+                    hasInteracted = false; // Allow retry on error
+                });
             } else {
-                console.error("Audio player element not found.");
+                 // Fallback for browsers that don't return a promise (older)
+                 console.log("Audio play() did not return a promise. Assuming playback started.");
+                 loadingScreen.classList.add('opacity-0');
+                 setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    mainContent.classList.add('opacity-100');
+                 }, 1000);
             }
         });
     </script>
