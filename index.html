@@ -98,7 +98,7 @@
          }
 
         /* --- Background Particles --- */
-        .particle-container {
+        .particle-container-base { /* Renamed for clarity, base styles for all particle containers */
             position: fixed; /* Cover the whole viewport */
             top: 0;
             left: 0;
@@ -150,6 +150,38 @@
         .particle:nth-child(14) { width: 8px; height: 8px; left: 45%; animation-duration: 22s; animation-delay: 12s; --drift: -25px; }
         .particle:nth-child(15) { width: 6px; height: 6px; left: 55%; animation-duration: 16s; animation-delay: 13s; --drift: 20px; }
 
+        /* --- Track Name Particles --- */
+        .track-name-particle {
+            position: absolute;
+            color: rgba(255, 166, 201, 0.15); /* Very subtle pink */
+            font-weight: 700; /* Bold like tracklist headings */
+            white-space: nowrap;
+            user-select: none; /* Prevent text selection */
+            animation-name: trackFloat;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+            opacity: 0;
+            bottom: 0; /* Start from bottom edge */
+            /* Individual properties (font-size, left, animation-duration, animation-delay, --drift, --initial-rotate, --final-rotate) will be set by JS */
+        }
+
+        @keyframes trackFloat { /* Animation for track name particles */
+            0% {
+                transform: translateY(5vh) translateX(0) rotate(var(--initial-rotate, 0deg)); /* Start slightly below viewport edge */
+                opacity: 0;
+            }
+            15% {
+                opacity: var(--max-opacity, 0.7); /* Use CSS variable for max opacity */
+            }
+            85% {
+                opacity: var(--max-opacity, 0.7);
+            }
+            100% {
+                transform: translateY(-105vh) translateX(var(--drift, 0px)) rotate(var(--final-rotate, 0deg)); /* End slightly above viewport */
+                opacity: 0;
+            }
+        }
+
     </style>
 </head>
 <body class="bg-black">
@@ -160,13 +192,16 @@
 
     <div id="main-content" class="opacity-0" style="transition: opacity 5s ease-in-out;">
 
-        <div class="particle-container">
+        <div id="dot-particle-container" class="particle-container-base"> <!-- Container for dot particles -->
             <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
             <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
             <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
             <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
             <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
         </div>
+
+        <div id="track-name-particle-container" class="particle-container-base"></div> <!-- Container for track name particles -->
+
 
         <div class="currently-playing fixed top-4 right-4 bg-pink-300 text-black text-xs font-semibold p-2 rounded-lg shadow-lg flex items-center z-50">
             <span class="mr-2">🎵</span> <span>CURRENTLY PLAYING - BRAIDS</span>
@@ -205,7 +240,8 @@
                 </ul>
             </div>
         </div>
-    </div> <audio id="audioPlayer" src="briads master.mp3" loop>
+    </div>
+    <audio id="audioPlayer" src="briads master.mp3" loop>
         Your browser does not support the audio element.
     </audio>
 
@@ -218,48 +254,69 @@
 
         // Add click listener to the loading screen
         loadingScreen.addEventListener('click', () => {
-            // Prevent running the logic multiple times if clicked again quickly
-            if (hasInteracted) {
-                return;
-            }
+            if (hasInteracted) return;
             hasInteracted = true;
-
             console.log("Loading screen clicked. Attempting to play audio...");
 
-            // Try to play the audio
             const playPromise = audio.play();
-
             if (playPromise !== undefined) {
                 playPromise.then(_ => {
-                    // Audio playback started successfully
                     console.log("Audio playback started.");
-
-                    // 1. Fade out loading screen
                     loadingScreen.classList.add('opacity-0');
-
-                    // 2. After loading screen fades out (1s), remove it and fade in main content
                     setTimeout(() => {
-                        loadingScreen.style.display = 'none'; // Hide it completely
+                        loadingScreen.style.display = 'none';
                         console.log("Loading screen hidden. Fading in main content...");
-                        // Add opacity-100 to start the 5s fade-in defined in CSS
                         mainContent.classList.add('opacity-100');
-                    }, 1000); // Match the duration of the loading screen fade-out (1000ms)
-
+                    }, 1000);
                 }).catch(error => {
-                    // Audio playback failed
                     console.error("Audio playback failed:", error);
-                    // Optionally display an error message on the loading screen
                     loadingScreen.querySelector('h1').textContent = 'Error playing audio. Please refresh.';
-                    hasInteracted = false; // Allow retry on error
+                    hasInteracted = false;
                 });
             } else {
-                 // Fallback for browsers that don't return a promise (older)
                  console.log("Audio play() did not return a promise. Assuming playback started.");
                  loadingScreen.classList.add('opacity-0');
                  setTimeout(() => {
                     loadingScreen.style.display = 'none';
                     mainContent.classList.add('opacity-100');
                  }, 1000);
+            }
+        });
+
+        // --- Track Name Particle Generation ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const trackNames = [
+                "INTRO", "BOMB", "UNNAMED 1", "TYLER", "GOD LEVEL",
+                "BRAIDS", "SOUL", "NIGHT VISION", "JOLI VISAGE", "JAPANESE", "GOD", "FATHER"
+            ];
+            const container = document.getElementById('track-name-particle-container');
+            const numberOfParticles = 20; // Create more particles than track names for a continuous effect
+
+            for (let i = 0; i < numberOfParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('track-name-particle');
+                particle.textContent = trackNames[i % trackNames.length]; // Cycle through track names
+
+                const randomLeft = Math.random() * 90 + 5; // 5% to 95%
+                const randomDuration = Math.random() * 15 + 25; // 25s to 40s
+                const randomDelay = Math.random() * 20; // 0s to 20s initial delay
+                const randomFontSize = Math.random() * 0.6 + 0.7; // 0.7rem to 1.3rem
+                const driftX = (Math.random() - 0.5) * 100; // -50px to 50px horizontal drift
+                const initialRotate = (Math.random() - 0.5) * 20; // -10deg to 10deg
+                const finalRotate = initialRotate + (Math.random() - 0.5) * 30; // Add some rotation change
+                const maxOpacity = Math.random() * 0.15 + 0.05; // Max opacity between 0.05 and 0.20
+
+                particle.style.left = `${randomLeft}%`;
+                particle.style.fontSize = `${randomFontSize}rem`;
+                particle.style.animationDuration = `${randomDuration}s`;
+                particle.style.animationDelay = `${randomDelay}s`;
+                particle.style.setProperty('--drift', `${driftX}px`);
+                particle.style.setProperty('--initial-rotate', `${initialRotate}deg`);
+                particle.style.setProperty('--final-rotate', `${finalRotate}deg`);
+                particle.style.setProperty('--max-opacity', `${maxOpacity}`);
+
+
+                container.appendChild(particle);
             }
         });
     </script>
