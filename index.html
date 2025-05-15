@@ -3,323 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cer.</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <title>NIGHT VISION - cernick</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <style>
-        /* Custom styles */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        :root {
+            --main-pink: #E5ACC9; /* A prominent pink from the image */
+            --light-pink-highlight: #FAD8E8; /* Lighter pink for hovers/accents/stars */
+            --dark-bg: #0A0A0A;
+            --border-black: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000; /* Black background */
-            color: #000; /* Default text color to black */
-            overflow-x: hidden; /* Prevent horizontal scroll */
-            position: relative; /* Needed for particle container positioning */
+            background-color: var(--dark-bg); /* Base background color */
+            color: var(--main-pink);
+            font-family: 'VT323', monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            overflow-x: hidden; 
+            overflow-y: auto; 
+            font-size: 18px; 
         }
 
-        /* Keyframes for the pink pulse animation */
-        @keyframes pinkPulse {
-            0%, 100% {
-                color: #000; /* Start and end black */
-                text-shadow: none;
-            }
-            50% {
-                color: #FFA6C9; /* Light pink color */
-                text-shadow: 0 0 8px #FFA6C9, 0 0 12px #FFA6C9; /* Pink glow */
-            }
-        }
-        /* Keyframes for subtle text pulse on loading screen */
-        @keyframes subtlePulse {
-             0%, 100% { opacity: 0.7; }
-             50% { opacity: 1; }
+        /* Grainy overlay - will be on top of stars and content */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 250"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="1"/></svg>');
+            opacity: 0.025; 
+            pointer-events: none; 
+            z-index: 3; /* Layer 4: On top of content and stars */
         }
 
-        /* Apply animation to tracklist items */
-        .track-item {
-            animation-name: pinkPulse;
-            animation-duration: 3s; /* Duration of one pulse */
-            animation-timing-function: ease-in-out;
-            animation-iteration-count: infinite; /* Loop forever */
-            /* Delay is set inline based on item index */
+        #root {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px; 
         }
 
-        /* Ensure image scales nicely */
-        .album-cover img {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            box-shadow: 0 0 20px 5px rgba(255, 166, 201, 0.3); /* Subtle pink glow around cover */
-        }
-
-        /* Container adjustments */
-        .content-wrapper {
-            min-height: 100vh; /* Ensure it takes full viewport height */
-            padding: 1rem; /* Add padding for spacing */
-            position: relative; /* Position relative to stack above particles */
-            z-index: 1; /* Ensure content is above particles */
-        }
-
-        /* Tracklist styling */
-        .tracklist {
-             list-style: none;
-             padding: 0;
-             margin: 0 1rem; /* Add margin between tracklist and image */
-        }
-        .tracklist li {
-            margin-bottom: 0.75rem; /* Space between tracks */
-            font-size: 0.875rem; /* Slightly smaller font */
-            line-height: 1.25rem;
-        }
-
-         /* Mobile specific adjustments */
-         @media (max-width: 768px) {
-             .tracklist {
-                 text-align: center; /* Center text on mobile */
-                 margin: 1rem 0; /* Adjust margin for vertical stacking */
-             }
-              .album-cover {
-                 max-width: 80%; /* Reduce cover size slightly on mobile */
-                 margin-left: auto;
-                 margin-right: auto;
-             }
-             /* Adjust position of currently playing indicator on mobile */
-             .currently-playing {
-                top: 1rem;
-                right: 1rem;
-                font-size: 0.75rem; /* Smaller text on mobile */
-                padding: 0.3rem 0.6rem;
-             }
-             /* Adjust loading text size on mobile */
-             #loading-screen h1 {
-                font-size: 1.5rem; /* Slightly smaller text */
-             }
-         }
-
-        /* --- Background Particles --- */
-        .particle-container-base { /* Renamed for clarity, base styles for all particle containers */
-            position: fixed; /* Cover the whole viewport */
+        /* Star Background Styles */
+        .stars-background {
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0; /* Position behind content-wrapper */
-            pointer-events: none; /* Allow clicks to pass through */
-            overflow: hidden; /* Hide particles that go off-screen */
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; /* Clip stars that animate outside */
+            z-index: 1;      /* Layer 2: Above body bg, below content */
+            pointer-events: none; /* So it doesn't interfere with page interaction */
         }
 
-        .particle {
-            position: absolute;
-            background-color: rgba(255, 166, 201, 0.4); /* Semi-transparent pink */
-            border-radius: 50%;
-            animation: float 20s infinite linear;
+        .shooting-star {
+            position: absolute; /* Relative to .stars-background */
+            width: 100px; /* Length of the star's tail */
+            height: 1.5px; /* Thickness of the star */
+            background: linear-gradient(to right, var(--light-pink-highlight), transparent);
+            border-radius: 1px; /* Slightly soft edges */
             opacity: 0; /* Start invisible */
-            bottom: 0; /* Start from bottom */
-        }
-
-        /* Keyframes for floating up and slightly drifting */
-        @keyframes float {
-            0% {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-            }
-            10%, 90% { /* Fade in and out */
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100vh) translateX(var(--drift, 0px)); /* Float up, use drift variable */
-                opacity: 0;
-            }
-        }
-
-        /* Particle variations */
-        .particle:nth-child(1) { width: 5px; height: 5px; left: 10%; animation-duration: 15s; animation-delay: 0s; --drift: 20px; }
-        .particle:nth-child(2) { width: 8px; height: 8px; left: 20%; animation-duration: 20s; animation-delay: 3s; --drift: -30px; }
-        .particle:nth-child(3) { width: 4px; height: 4px; left: 30%; animation-duration: 25s; animation-delay: 1s; --drift: 15px; }
-        .particle:nth-child(4) { width: 6px; height: 6px; left: 40%; animation-duration: 18s; animation-delay: 5s; --drift: -10px; }
-        .particle:nth-child(5) { width: 5px; height: 5px; left: 50%; animation-duration: 22s; animation-delay: 2s; --drift: 25px; }
-        .particle:nth-child(6) { width: 7px; height: 7px; left: 60%; animation-duration: 16s; animation-delay: 6s; --drift: -20px; }
-        .particle:nth-child(7) { width: 4px; height: 4px; left: 70%; animation-duration: 24s; animation-delay: 4s; --drift: 10px; }
-        .particle:nth-child(8) { width: 9px; height: 9px; left: 80%; animation-duration: 19s; animation-delay: 7s; --drift: -25px; }
-        .particle:nth-child(9) { width: 5px; height: 5px; left: 90%; animation-duration: 21s; animation-delay: 1s; --drift: 30px; }
-        .particle:nth-child(10) { width: 6px; height: 6px; left: 5%; animation-duration: 17s; animation-delay: 8s; --drift: -15px; }
-        .particle:nth-child(11) { width: 4px; height: 4px; left: 15%; animation-duration: 23s; animation-delay: 9s; --drift: 20px; }
-        .particle:nth-child(12) { width: 7px; height: 7px; left: 25%; animation-duration: 20s; animation-delay: 10s; --drift: -10px; }
-        .particle:nth-child(13) { width: 5px; height: 5px; left: 35%; animation-duration: 18s; animation-delay: 11s; --drift: 15px; }
-        .particle:nth-child(14) { width: 8px; height: 8px; left: 45%; animation-duration: 22s; animation-delay: 12s; --drift: -25px; }
-        .particle:nth-child(15) { width: 6px; height: 6px; left: 55%; animation-duration: 16s; animation-delay: 13s; --drift: 20px; }
-
-        /* --- Track Name Particles --- */
-        .track-name-particle {
-            position: absolute;
-            color: rgba(255, 166, 201, 0.15); /* Very subtle pink */
-            font-weight: 700; /* Bold like tracklist headings */
-            white-space: nowrap;
-            user-select: none; /* Prevent text selection */
-            animation-name: trackFloat;
+            animation-name: shootAcross;
+            animation-timing-function: linear; /* Consistent speed */
             animation-iteration-count: infinite;
-            animation-timing-function: linear;
-            opacity: 0;
-            bottom: 0; /* Start from bottom edge */
-            /* Individual properties (font-size, left, animation-duration, animation-delay, --drift, --initial-rotate, --final-rotate) will be set by JS */
         }
 
-        @keyframes trackFloat { /* Animation for track name particles */
+        @keyframes shootAcross {
             0% {
-                transform: translateY(5vh) translateX(0) rotate(var(--initial-rotate, 0deg)); /* Start slightly below viewport edge */
+                transform: translateX(-110px); /* Start off-screen to the left */
                 opacity: 0;
             }
-            15% {
-                opacity: var(--max-opacity, 0.7); /* Use CSS variable for max opacity */
+            10% { /* Fade in quickly */
+                opacity: 0.7; /* Slightly translucent */
             }
-            85% {
-                opacity: var(--max-opacity, 0.7);
+            90% { /* Visible for most of the duration, start fade out */
+                opacity: 0.7;
+                transform: translateX(calc(100vw - 110px)); /* About to leave screen right */
             }
             100% {
-                transform: translateY(-105vh) translateX(var(--drift, 0px)) rotate(var(--final-rotate, 0deg)); /* End slightly above viewport */
+                transform: translateX(100vw); /* Fully off-screen to the right */
                 opacity: 0;
             }
         }
 
+
+        .night-vision-page {
+            display: grid;
+            grid-template-areas:
+                "header header header"
+                "side-a art side-b"
+                "artist artist artist";
+            grid-template-columns: 1fr auto 1fr; 
+            grid-template-rows: auto minmax(0, auto) auto; 
+            width: 100%;
+            max-width: 1200px; 
+            min-height: 80vh; 
+            padding: 20px;
+            gap: 15px 25px; 
+            align-items: center; 
+            text-align: center;
+            position: relative; /* Needed for z-index stacking */
+            z-index: 2;         /* Layer 3: Above stars, below grain */
+            background: transparent; /* Ensure page content area is transparent to see stars through */
+        }
+
+        .album-title-container {
+            grid-area: header;
+        }
+
+        .album-title {
+            font-size: clamp(3rem, 10vw, 6.5rem); 
+            color: var(--main-pink);
+            margin: 0;
+            padding: 0;
+            line-height: 0.85; 
+            text-shadow: 0 0 3px var(--main-pink), 0 0 8px var(--main-pink), 0 0 12px var(--border-black);
+            animation: titleFlicker 4s infinite alternate ease-in-out;
+            letter-spacing: 1px;
+        }
+
+        @keyframes titleFlicker {
+            0%, 100% { opacity: 1; transform: skewX(-1.5deg) scale(1.0); text-shadow: 0 0 3px var(--main-pink), 0 0 8px var(--main-pink), 0 0 12px var(--border-black); }
+            50% { opacity: 0.95; transform: skewX(1.5deg) scale(1.01); text-shadow: 0 0 5px var(--main-pink), 0 0 10px var(--main-pink), 0 0 15px var(--border-black); }
+        }
+
+        .album-art-wrapper {
+            grid-area: art;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .album-cover {
+            max-width: 400px;
+            width: 100%; 
+            height: auto;
+            object-fit: contain;
+            border: 2px solid var(--border-black); 
+            box-shadow: 0 0 10px 3px rgba(229, 172, 201, 0.25); 
+            animation: subtleImagePulse 6s infinite ease-in-out;
+        }
+
+        @keyframes subtleImagePulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 10px 3px rgba(229, 172, 201, 0.25); 
+            }
+            50% { 
+                transform: scale(1.015); 
+                box-shadow: 0 0 20px 6px rgba(229, 172, 201, 0.35); 
+            }
+        }
+
+        .artist-name {
+            grid-area: artist;
+            font-size: clamp(1.1rem, 3vw, 1.6rem);
+            color: var(--main-pink);
+            margin-top: 10px;
+            opacity: 0.75;
+            letter-spacing: 1.5px;
+            animation: artistFadeInOut 8s infinite alternate;
+        }
+
+        @keyframes artistFadeInOut {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.85; }
+        }
+
+        .side {
+            padding: 10px;
+            max-height: 350px; 
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+        }
+
+        .side#side-a { 
+            grid-area: side-a; 
+            text-align: right; 
+            padding-right: clamp(10px, 5vw, 30px); 
+        }
+        .side#side-b { 
+            grid-area: side-b; 
+            text-align: left; 
+            padding-left: clamp(10px, 5vw, 30px);
+        }
+
+        .side-title {
+            font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 2px var(--main-pink);
+        }
+
+        .side ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .side li {
+            margin-bottom: 12px;
+            font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+            cursor: default;
+            transition: all 0.25s ease-in-out;
+            opacity: 0.7;
+            letter-spacing: 0.5px;
+        }
+
+        .side li:hover {
+            opacity: 1;
+            color: var(--light-pink-highlight);
+            text-shadow: 0 0 5px var(--light-pink-highlight);
+        }
+        .side#side-a li:hover { transform: translateX(-4px); }
+        .side#side-b li:hover { transform: translateX(4px); }
+
+        .side::-webkit-scrollbar { width: 4px; }
+        .side::-webkit-scrollbar-track { background: rgba(229, 172, 201, 0.1); }
+        .side::-webkit-scrollbar-thumb {
+            background-color: var(--main-pink);
+            border-radius: 8px;
+            border: 1px solid var(--dark-bg);
+        }
+        .side { 
+            scrollbar-width: thin;
+            scrollbar-color: var(--main-pink) rgba(229, 172, 201, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            body { align-items: flex-start; }
+            .night-vision-page {
+                grid-template-areas:
+                    "header"
+                    "art"
+                    "side-a"
+                    "side-b"
+                    "artist";
+                grid-template-columns: 1fr; 
+                grid-template-rows: auto auto auto auto auto; 
+                height: auto; 
+                padding: 15px;
+                gap: 20px; 
+            }
+            .album-title { font-size: clamp(2.5rem, 12vw, 4.5rem); }
+            .album-cover { max-width: 80vw; max-height: 300px; }
+            .side#side-a, .side#side-b {
+                text-align: center; 
+                padding-left: 0; padding-right: 0;
+                max-height: none; 
+                overflow-y: visible; 
+            }
+            .side li:hover { transform: none; }
+            .artist-name { margin-top: 15px; margin-bottom: 15px; }
+        }
+        @media (max-width: 480px) {
+             .album-title { line-height: 1; }
+             .side li { font-size: clamp(0.8rem, 3vw, 0.95rem); margin-bottom: 10px; }
+            .side-title { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+        }
     </style>
 </head>
-<body class="bg-black">
+<body>
+    <div id="root"></div>
 
-    <div id="loading-screen" class="fixed inset-0 bg-black flex items-center justify-center z-[100] cursor-pointer transition-opacity duration-1000 ease-out">
-        <h1 class="text-pink-300 text-2xl font-semibold" style="animation: subtlePulse 2s ease-in-out infinite;">Click to Enter</h1>
-    </div>
-
-    <div id="main-content" class="opacity-0" style="transition: opacity 5s ease-in-out;">
-
-        <div id="dot-particle-container" class="particle-container-base"> <!-- Container for dot particles -->
-            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-            <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-        </div>
-
-        <div id="track-name-particle-container" class="particle-container-base"></div> <!-- Container for track name particles -->
-
-
-        <div class="currently-playing fixed top-4 right-4 bg-pink-300 text-black text-xs font-semibold p-2 rounded-lg shadow-lg flex items-center z-50">
-            <span class="mr-2">🎵</span> <span>CURRENTLY PLAYING - BRAIDS</span>
-        </div>
-
-        <div class="content-wrapper flex flex-col md:flex-row items-center justify-center min-h-screen p-4 md:p-8">
-
-            <div class="tracklist text-right md:text-right order-2 md:order-1 w-full md:w-auto mb-6 md:mb-0 md:mr-8">
-                <h2 class="text-lg font-bold mb-4" style="color: #FFA6C9;">Side A</h2>
-                <ul>
-                    <li class="track-item" style="animation-delay: 0.0s;">INTRO</li>
-                    <li class="track-item" style="animation-delay: 0.3s;">BOMB</li>
-                    <li class="track-item" style="animation-delay: 0.6s;">UNNAMED 1</li>
-                    <li class="track-item" style="animation-delay: 0.9s;">TYLER</li>
-                    <li class="track-item" style="animation-delay: 1.2s;">GOD LEVEL</li>
-                 </ul>
-            </div>
-
-            <div class="album-cover order-1 md:order-2 w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 flex-shrink-0">
-                <img src="image.png"
-                     alt="Album Cover"
-                     class="w-full h-full object-cover shadow-lg"
-                     onerror="this.onerror=null; this.src='https://placehold.co/400x400/cccccc/000000?text=Image+Not+Found';">
-            </div>
-
-            <div class="tracklist text-left md:text-left order-3 md:order-3 w-full md:w-auto mt-6 md:mt-0 md:ml-8">
-                <h2 class="text-lg font-bold mb-4" style="color: #FFA6C9;">Side B</h2>
-                <ul>
-                    <li class="track-item" style="animation-delay: 0.0s;">BRAIDS</li>
-                    <li class="track-item" style="animation-delay: 0.3s;">SOUL</li>
-                    <li class="track-item" style="animation-delay: 0.6s;">NIGHT VISION</li>
-                    <li class="track-item" style="animation-delay: 0.9s;">JOLI VISAGE</li>
-                    <li class="track-item" style="animation-delay: 1.2s;">JAPANESE</li>
-                    <li class="track-item" style="animation-delay: 1.5s;">GOD</li>
-                    <li class="track-item" style="animation-delay: 1.8s;">FATHER</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <audio id="audioPlayer" src="briads master.mp3" loop>
-        Your browser does not support the audio element.
-    </audio>
-
-    <script>
-        // Get references to the elements
-        const loadingScreen = document.getElementById('loading-screen');
-        const mainContent = document.getElementById('main-content');
-        const audio = document.getElementById('audioPlayer');
-        let hasInteracted = false; // Flag to prevent multiple clicks
-
-        // Add click listener to the loading screen
-        loadingScreen.addEventListener('click', () => {
-            if (hasInteracted) return;
-            hasInteracted = true;
-            console.log("Loading screen clicked. Attempting to play audio...");
-
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                    console.log("Audio playback started.");
-                    loadingScreen.classList.add('opacity-0');
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                        console.log("Loading screen hidden. Fading in main content...");
-                        mainContent.classList.add('opacity-100');
-                    }, 1000);
-                }).catch(error => {
-                    console.error("Audio playback failed:", error);
-                    loadingScreen.querySelector('h1').textContent = 'Error playing audio. Please refresh.';
-                    hasInteracted = false;
-                });
-            } else {
-                 console.log("Audio play() did not return a promise. Assuming playback started.");
-                 loadingScreen.classList.add('opacity-0');
-                 setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    mainContent.classList.add('opacity-100');
-                 }, 1000);
+    <script type="text/babel">
+        const ShootingStarsContainer = ({ count = 15 }) => {
+            const stars = [];
+            for (let i = 0; i < count; i++) {
+                const style = {
+                    top: `${Math.random() * 100}%`, // Random vertical start position
+                    animationDuration: `${3 + Math.random() * 4}s`, // Random speed (3-7s duration)
+                    animationDelay: `${Math.random() * 10}s`,      // Random start delay (0-10s)
+                };
+                stars.push(<div key={i} className="shooting-star" style={style}></div>);
             }
-        });
+            return <div className="stars-background">{stars}</div>;
+        };
 
-        // --- Track Name Particle Generation ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const trackNames = [
-                "INTRO", "BOMB", "UNNAMED 1", "TYLER", "GOD LEVEL",
-                "BRAIDS", "SOUL", "NIGHT VISION", "JOLI VISAGE", "JAPANESE", "GOD", "FATHER"
-            ];
-            const container = document.getElementById('track-name-particle-container');
-            const numberOfParticles = 20; // Create more particles than track names for a continuous effect
+        const App = () => {
+            const sideA_tracks = ["Visions", "Bomb", "Crashes", "Let me live", "Tyler", "God Level"];
+            const sideB_tracks = ["BRAIDS", "WATCHCLOSELY", "NIGHT VISION", "JOLI VISAGE", "BEAUTIFULASSSHIT", "JAPANESE", "GOD", "FATHER"];
 
-            for (let i = 0; i < numberOfParticles; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('track-name-particle');
-                particle.textContent = trackNames[i % trackNames.length]; // Cycle through track names
+            return (
+                <React.Fragment> {/* Use React.Fragment to allow multiple top-level elements */}
+                    <ShootingStarsContainer count={20} /> {/* Add stars here, they'll be fixed position */}
+                    
+                    <div className="night-vision-page">
+                        <div className="album-title-container">
+                            <h1 className="album-title">NIGHT<br/>VISION</h1>
+                        </div>
 
-                const randomLeft = Math.random() * 90 + 5; // 5% to 95%
-                const randomDuration = Math.random() * 15 + 25; // 25s to 40s
-                const randomDelay = Math.random() * 20; // 0s to 20s initial delay
-                const randomFontSize = Math.random() * 0.6 + 0.7; // 0.7rem to 1.3rem
-                const driftX = (Math.random() - 0.5) * 100; // -50px to 50px horizontal drift
-                const initialRotate = (Math.random() - 0.5) * 20; // -10deg to 10deg
-                const finalRotate = initialRotate + (Math.random() - 0.5) * 30; // Add some rotation change
-                const maxOpacity = Math.random() * 0.15 + 0.05; // Max opacity between 0.05 and 0.20
+                        <div className="album-art-wrapper">
+                            <img src="image.png" alt="NIGHT VISION Album Cover" className="album-cover" />
+                        </div>
 
-                particle.style.left = `${randomLeft}%`;
-                particle.style.fontSize = `${randomFontSize}rem`;
-                particle.style.animationDuration = `${randomDuration}s`;
-                particle.style.animationDelay = `${randomDelay}s`;
-                particle.style.setProperty('--drift', `${driftX}px`);
-                particle.style.setProperty('--initial-rotate', `${initialRotate}deg`);
-                particle.style.setProperty('--final-rotate', `${finalRotate}deg`);
-                particle.style.setProperty('--max-opacity', `${maxOpacity}`);
+                        <div className="side" id="side-a">
+                            <p className="side-title">Side A</p>
+                            <ul>{sideA_tracks.map(track => <li key={track}>{track}</li>)}</ul>
+                        </div>
 
+                        <div className="side" id="side-b">
+                            <p className="side-title">Side B</p>
+                            <ul>{sideB_tracks.map(track => <li key={track}>{track}</li>)}</ul>
+                        </div>
 
-                container.appendChild(particle);
-            }
-        });
+                        <h2 className="artist-name">cernick</h2>
+                    </div>
+                </React.Fragment>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
-
 </body>
 </html>
